@@ -622,66 +622,15 @@ const Index = () => {
                   <Icon name="LogIn" className="mr-2" />
                   Войти
                 </Button>
-                <div className="text-center mt-4">
-                  <button 
-                    type="button"
-                    onClick={() => setShowRegister(!showRegister)}
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    {showRegister ? 'Уже есть аккаунт? Войти' : 'Нет аккаунта? Зарегистрироваться'}
-                  </button>
+                <div className="text-center text-sm text-gray-500 mt-4">
+                  <p>Данные для входа:</p>
+                  <p className="font-mono bg-gray-100 p-2 rounded mt-2">
+                    Логин: <strong>trener</strong><br />
+                    Пароль: <strong>treh2024</strong>
+                  </p>
                 </div>
               </form>
             </Card>
-
-            {showRegister && (
-              <Card className="p-8 mt-6">
-                <div className="text-center mb-6">
-                  <Icon name="UserPlus" className="mx-auto mb-4 text-blue-600" size={48} />
-                  <h2 className="text-3xl font-bold text-blue-600 mb-2">Регистрация тренера</h2>
-                  <p className="text-gray-600">Создайте новый аккаунт</p>
-                </div>
-                <form onSubmit={handleRegister} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>ФИО</Label>
-                    <Input
-                      placeholder="Иванов Иван Иванович"
-                      value={registerForm.fullName}
-                      onChange={(e) => setRegisterForm({...registerForm, fullName: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Логин</Label>
-                    <Input
-                      placeholder="ivan_ivanov"
-                      value={registerForm.username}
-                      onChange={(e) => setRegisterForm({...registerForm, username: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Пароль</Label>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      value={registerForm.password}
-                      onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
-                      required
-                    />
-                  </div>
-                  {registerError && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                      {registerError}
-                    </div>
-                  )}
-                  <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
-                    <Icon name="UserPlus" className="mr-2" />
-                    Зарегистрироваться
-                  </Button>
-                </form>
-              </Card>
-            )}
           </div>
         )}
 

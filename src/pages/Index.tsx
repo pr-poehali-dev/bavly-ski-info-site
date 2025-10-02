@@ -958,6 +958,17 @@ const Index = () => {
                 <Icon name="ClipboardList" className="mr-2 text-blue-600" />
                 Форма заявки
               </h3>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start space-x-3">
+                  <Icon name="Info" className="text-blue-600 mt-1 flex-shrink-0" size={20} />
+                  <div className="text-sm text-blue-900">
+                    <p className="font-semibold mb-1">Важная информация</p>
+                    <p>При заполнении заявки обязательно укажите в комментариях наличие медицинских противопоказаний или особенностей здоровья ребенка (аллергии, хронические заболевания, травмы и т.д.)</p>
+                  </div>
+                </div>
+              </div>
+
               <form className="space-y-4" onSubmit={handleSubmitApplication}>
                   <div className="space-y-2">
                     <Label>ФИО ребенка</Label>
@@ -997,11 +1008,12 @@ const Index = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Комментарий</Label>
+                    <Label>Комментарий (медицинские особенности, опыт и др.)</Label>
                     <Textarea 
-                      placeholder="Дополнительная информация..."
+                      placeholder="Укажите медицинские противопоказания, особенности здоровья, опыт катания на лыжах и другую важную информацию..."
                       value={formData.comment}
                       onChange={(e) => setFormData({...formData, comment: e.target.value})}
+                      className="min-h-[100px]"
                     />
                   </div>
                   <Button type="submit" className="w-full bg-red-500 hover:bg-red-600 text-white font-bold">

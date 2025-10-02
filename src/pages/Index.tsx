@@ -28,6 +28,25 @@ const Index = () => {
     { date: '10 февраля 2025', name: 'Зимняя Спартакиада', location: 'г. Альметьевск', status: 'upcoming' }
   ];
 
+  const schedule = [
+    { day: 'Понедельник', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
+    { day: 'Понедельник', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
+    { day: 'Среда', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
+    { day: 'Среда', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
+    { day: 'Пятница', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
+    { day: 'Пятница', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
+    { day: 'Суббота', time: '10:00 - 13:00', group: 'Общая тренировка', coach: 'Вся команда' }
+  ];
+
+  const gallery = [
+    { title: 'Кубок Татарстана 2024', image: '🏆', description: 'Победа в командном зачете' },
+    { title: 'Тренировка на трассе', image: '⛷️', description: 'Подготовка к сезону' },
+    { title: 'Церемония награждения', image: '🥇', description: '1 место - Александров Иван' },
+    { title: 'Командное фото', image: '📸', description: 'Вся команда после соревнований' },
+    { title: 'Зимний лагерь', image: '🏔️', description: 'Учебно-тренировочный сбор' },
+    { title: 'Юные чемпионы', image: '🎿', description: 'Наши звёзды' }
+  ];
+
   useEffect(() => {
     fetchApplications();
   }, []);
@@ -97,7 +116,7 @@ const Index = () => {
               </h1>
             </div>
             <div className="hidden md:flex space-x-6">
-              {['Главная', 'Спортсмены', 'Соревнования', 'Регистрация', 'Заявки'].map((item) => (
+              {['Главная', 'Спортсмены', 'Соревнования', 'Расписание', 'Галерея', 'Регистрация', 'Заявки'].map((item) => (
                 <button
                   key={item}
                   onClick={() => setActiveSection(item.toLowerCase())}
@@ -236,6 +255,75 @@ const Index = () => {
                   </div>
                 </Card>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'расписание' && (
+          <div className="animate-fade-in">
+            <h2 className="text-4xl font-bold text-center mb-12 text-blue-600">Расписание тренировок</h2>
+            <div className="space-y-4 max-w-4xl mx-auto">
+              {schedule.map((item, idx) => (
+                <Card key={idx} className="p-6 hover:shadow-lg transition-all border-l-4 border-red-500">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="text-center min-w-[100px]">
+                        <Badge className="bg-blue-600 text-white text-sm">{item.day}</Badge>
+                        <p className="text-lg font-bold text-blue-600 mt-2">{item.time}</p>
+                      </div>
+                      <div className="border-l-2 border-gray-200 pl-4">
+                        <h3 className="font-bold text-lg mb-1">{item.group}</h3>
+                        <p className="text-gray-600 flex items-center">
+                          <Icon name="User" className="mr-2" size={16} />
+                          Тренер: {item.coach}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+            <div className="mt-12 text-center">
+              <Card className="p-8 max-w-2xl mx-auto bg-gradient-to-r from-blue-50 to-red-50">
+                <Icon name="Info" className="mx-auto mb-4 text-blue-600" size={48} />
+                <h3 className="text-2xl font-bold mb-4">Важная информация</h3>
+                <div className="text-left space-y-2 text-gray-700">
+                  <p>• Просьба приходить за 15 минут до начала тренировки</p>
+                  <p>• При себе иметь сменную одежду и воду</p>
+                  <p>• В случае пропуска предупредить тренера заранее</p>
+                  <p>• Лыжный инвентарь предоставляется клубом</p>
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'галерея' && (
+          <div className="animate-fade-in">
+            <h2 className="text-4xl font-bold text-center mb-12 text-blue-600">Фотогалерея</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gallery.map((item, idx) => (
+                <Card key={idx} className="overflow-hidden hover:shadow-xl transition-all hover:scale-105 group">
+                  <div className="bg-gradient-to-br from-blue-100 to-red-100 p-12 flex items-center justify-center text-8xl">
+                    {item.image}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-bold text-xl mb-2 group-hover:text-blue-600 transition-colors">{item.title}</h3>
+                    <p className="text-gray-600">{item.description}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+            <div className="mt-12 text-center">
+              <Card className="p-8 max-w-xl mx-auto">
+                <Icon name="Camera" className="mx-auto mb-4 text-red-500" size={48} />
+                <h3 className="text-2xl font-bold mb-4">Поделитесь своими фото!</h3>
+                <p className="text-gray-600 mb-4">Присылайте фотографии с соревнований и тренировок</p>
+                <Button className="bg-red-500 hover:bg-red-600 text-white">
+                  <Icon name="Upload" className="mr-2" />
+                  Загрузить фото
+                </Button>
+              </Card>
             </div>
           </div>
         )}

@@ -9,11 +9,16 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
 const API_URL = 'https://functions.poehali.dev/c8ed8102-c061-4f5b-ac2c-ac7d0710fe7b';
+const AUTH_URL = 'https://functions.poehali.dev/59f82144-8fc0-41bb-b8d5-ad0b3d77295b';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [applications, setApplications] = useState([]);
   const [formData, setFormData] = useState({ childName: '', childAge: '', parentName: '', phone: '', comment: '' });
+  const [isCoachLoggedIn, setIsCoachLoggedIn] = useState(false);
+  const [coachData, setCoachData] = useState(null);
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [loginError, setLoginError] = useState('');
 
   const athletes = [
     { name: 'Александров Иван', age: 15, achievements: '1 место - Кубок Татарстана 2024', image: '🎿' },
@@ -104,6 +109,37 @@ const Index = () => {
     }
   };
 
+  const handleCoachLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    try {
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginForm)
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setIsCoachLoggedIn(true);
+        setCoachData(data.coach);
+        setActiveSection('панель-тренера');
+        setLoginForm({ username: '', password: '' });
+      } else {
+        setLoginError(data.message || 'Ошибка входа');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setLoginError('Ошибка подключения к серверу');
+    }
+  };
+
+  const handleCoachLogout = () => {
+    setIsCoachLoggedIn(false);
+    setCoachData(null);
+    setActiveSection('home');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-blue-100">
@@ -115,7 +151,7 @@ const Index = () => {
                 ЛЫЖНАЯ КОМАНДА БАВЛЫ
               </h1>
             </div>
-            <div className="hidden md:flex space-x-6">
+            <div className="hidden md:flex items-center space-x-6">
               {['Главная', 'Спортсмены', 'Соревнования', 'Расписание', 'Галерея', 'Регистрация', 'Заявки'].map((item) => (
                 <button
                   key={item}
@@ -129,6 +165,37 @@ const Index = () => {
                   {item}
                 </button>
               ))}
+              {isCoachLoggedIn ? (
+                <div className="flex items-center space-x-4 ml-4 pl-4 border-l border-gray-300">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveSection('панель-тренера')}
+                    className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                  >
+                    <Icon name="UserCog" className="mr-2" size={16} />
+                    Панель тренера
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleCoachLogout}
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                  >
+                    <Icon name="LogOut" size={16} />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setActiveSection('вход-тренера')}
+                  className="ml-4 border-blue-600 text-blue-600 hover:bg-blue-50"
+                >
+                  <Icon name="Lock" className="mr-2" size={16} />
+                  Вход для тренера
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -395,17 +462,138 @@ const Index = () => {
           </div>
         )}
 
+        {activeSection === 'вход-тренера' && (
+          <div className="max-w-md mx-auto animate-fade-in">
+            <Card className="p-8">
+              <div className="text-center mb-6">
+                <Icon name="Lock" className="mx-auto mb-4 text-blue-600" size={48} />
+                <h2 className="text-3xl font-bold text-blue-600 mb-2">Вход для тренера</h2>
+                <p className="text-gray-600">Введите логин и пароль</p>
+              </div>
+              <form onSubmit={handleCoachLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Логин</Label>
+                  <Input
+                    placeholder="trainer"
+                    value={loginForm.username}
+                    onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Пароль</Label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                    required
+                  />
+                </div>
+                {loginError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    {loginError}
+                  </div>
+                )}
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                  <Icon name="LogIn" className="mr-2" />
+                  Войти
+                </Button>
+                <div className="text-center text-sm text-gray-500 mt-4">
+                  <p>Тестовый доступ:</p>
+                  <p className="font-mono bg-gray-100 p-2 rounded mt-2">
+                    Логин: <strong>trainer</strong><br />
+                    Пароль: <strong>trainer123</strong>
+                  </p>
+                </div>
+              </form>
+            </Card>
+          </div>
+        )}
+
+        {activeSection === 'панель-тренера' && isCoachLoggedIn && (
+          <div className="animate-fade-in space-y-8">
+            <div className="text-center">
+              <h2 className="text-4xl font-bold text-blue-600 mb-2">Панель тренера</h2>
+              <p className="text-gray-600">Добро пожаловать, {coachData?.name}</p>
+            </div>
+            
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold mb-6 flex items-center">
+                <Icon name="UserCheck" className="mr-2 text-blue-600" />
+                Заявки в команду
+              </h3>
+              <div className="space-y-4">
+                {applications.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <Icon name="Inbox" className="mx-auto mb-4" size={48} />
+                    <p>Новых заявок пока нет</p>
+                  </div>
+                ) : (
+                  applications.map((app) => (
+                    <Card key={app.id} className="p-4 border-l-4 border-blue-500">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-bold text-lg">{app.name}</h4>
+                          <Badge className={
+                            app.status === 'approved' ? 'bg-green-100 text-green-700' :
+                            app.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }>
+                            {app.status === 'approved' ? 'Одобрена' :
+                             app.status === 'rejected' ? 'Отклонена' :
+                             'Ожидает'}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600">Возраст: {app.age} лет</p>
+                        <p className="text-sm text-gray-600">Родитель: {app.parent}</p>
+                        <p className="text-sm text-gray-600">Телефон: {app.phone}</p>
+                        {app.comment && (
+                          <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                            <strong>Комментарий:</strong> {app.comment}
+                          </p>
+                        )}
+                        
+                        {app.status === 'pending' && (
+                          <div className="flex gap-2 pt-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-green-600 hover:bg-green-700"
+                              onClick={() => handleApprove(app.id)}
+                            >
+                              <Icon name="Check" className="mr-1" size={16} />
+                              Принять
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="flex-1 border-red-500 text-red-500 hover:bg-red-50"
+                              onClick={() => handleReject(app.id)}
+                            >
+                              <Icon name="X" className="mr-1" size={16} />
+                              Отклонить
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </Card>
+          </div>
+        )}
+
         {activeSection === 'заявки' && (
           <div className="animate-fade-in space-y-8">
-            <h2 className="text-4xl font-bold text-center text-blue-600">Управление заявками</h2>
+            <h2 className="text-4xl font-bold text-center text-blue-600">Подать заявку в команду</h2>
             
-            <div className="grid lg:grid-cols-2 gap-8">
-              <Card className="p-6">
-                <h3 className="text-2xl font-bold mb-6 flex items-center">
-                  <Icon name="ClipboardList" className="mr-2 text-blue-600" />
-                  Подать заявку
-                </h3>
-                <form className="space-y-4" onSubmit={handleSubmitApplication}>
+            <Card className="p-6 max-w-2xl mx-auto">
+              <h3 className="text-2xl font-bold mb-6 flex items-center">
+                <Icon name="ClipboardList" className="mr-2 text-blue-600" />
+                Форма заявки
+              </h3>
+              <form className="space-y-4" onSubmit={handleSubmitApplication}>
                   <div className="space-y-2">
                     <Label>ФИО ребенка</Label>
                     <Input 
@@ -456,58 +644,6 @@ const Index = () => {
                     Отправить заявку
                   </Button>
                 </form>
-              </Card>
-
-              <Card className="p-6">
-                <h3 className="text-2xl font-bold mb-6 flex items-center">
-                  <Icon name="UserCheck" className="mr-2 text-blue-600" />
-                  Панель тренера
-                </h3>
-                <div className="space-y-4">
-                  {applications.map((app) => (
-                    <Card key={app.id} className="p-4 border-l-4 border-blue-500">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-lg">{app.name}</h4>
-                          <Badge className={
-                            app.status === 'approved' ? 'bg-green-100 text-green-700' :
-                            app.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                            'bg-yellow-100 text-yellow-700'
-                          }>
-                            {app.status === 'approved' ? 'Одобрена' :
-                             app.status === 'rejected' ? 'Отклонена' :
-                             'Ожидает'}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600">Возраст: {app.age} лет</p>
-                        <p className="text-sm text-gray-600">Родитель: {app.parent}</p>
-                        <p className="text-sm text-gray-600">Телефон: {app.phone}</p>
-                        
-                        {app.status === 'pending' && (
-                          <div className="flex gap-2 pt-2">
-                            <Button 
-                              size="sm" 
-                              className="flex-1 bg-green-600 hover:bg-green-700"
-                              onClick={() => handleApprove(app.id)}
-                            >
-                              <Icon name="Check" className="mr-1" size={16} />
-                              Принять
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="flex-1 border-red-500 text-red-500 hover:bg-red-50"
-                              onClick={() => handleReject(app.id)}
-                            >
-                              <Icon name="X" className="mr-1" size={16} />
-                              Отклонить
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
               </Card>
             </div>
           </div>

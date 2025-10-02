@@ -1028,7 +1028,7 @@ const Index = () => {
 
       <footer className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-12 mt-20">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div>
               <h3 className="text-xl font-bold mb-4 flex items-center">
                 <Icon name="MapPin" className="mr-2" />
@@ -1037,14 +1037,6 @@ const Index = () => {
               <p className="mb-2">г. Бавлы, Республика Татарстан</p>
               <p className="mb-2">Лыжная база "Трехгорка"</p>
               <p>Телефон: +7 904 678 52 08</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4 flex items-center">
-                <Icon name="Clock" className="mr-2" />
-                Режим работы
-              </h3>
-              <p className="mb-2">Понедельник - Пятница: 15:00 - 20:00</p>
-              <p className="mb-2">Суббота - Воскресенье: 10:00 - 18:00</p>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-4 flex items-center">

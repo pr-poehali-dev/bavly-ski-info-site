@@ -1,12 +1,474 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import Icon from '@/components/ui/icon';
+
+const API_URL = 'https://functions.poehali.dev/c8ed8102-c061-4f5b-ac2c-ac7d0710fe7b';
 
 const Index = () => {
+  const [activeSection, setActiveSection] = useState('home');
+  const [applications, setApplications] = useState([]);
+  const [formData, setFormData] = useState({ childName: '', childAge: '', parentName: '', phone: '', comment: '' });
+
+  const athletes = [
+    { name: 'Александров Иван', age: 15, achievements: '1 место - Кубок Татарстана 2024', image: '🎿' },
+    { name: 'Петрова Мария', age: 14, achievements: '2 место - Первенство РТ 2024', image: '⛷️' },
+    { name: 'Сидоров Дмитрий', age: 16, achievements: '3 место - Зимняя Спартакиада', image: '🎿' },
+    { name: 'Козлова Елена', age: 13, achievements: '1 место - Юниорский кубок', image: '⛷️' }
+  ];
+
+  const competitions = [
+    { date: '15 декабря 2024', name: 'Кубок Бавлы', location: 'г. Бавлы, лыжная база', status: 'upcoming' },
+    { date: '20 января 2025', name: 'Первенство Татарстана', location: 'г. Казань', status: 'upcoming' },
+    { date: '10 февраля 2025', name: 'Зимняя Спартакиада', location: 'г. Альметьевск', status: 'upcoming' }
+  ];
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const fetchApplications = async () => {
+    try {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      setApplications(data.applications || []);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    }
+  };
+
+  const handleSubmitApplication = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      setFormData({ childName: '', childAge: '', parentName: '', phone: '', comment: '' });
+      fetchApplications();
+      alert('Заявка успешно отправлена!');
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      alert('Ошибка при отправке заявки');
+    }
+  };
+
+  const handleApprove = async (id: number) => {
+    try {
+      await fetch(API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 'approved' })
+      });
+      fetchApplications();
+    } catch (error) {
+      console.error('Error approving application:', error);
+    }
+  };
+
+  const handleReject = async (id: number) => {
+    try {
+      await fetch(API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 'rejected' })
+      });
+      fetchApplications();
+    } catch (error) {
+      console.error('Error rejecting application:', error);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-blue-100">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-4xl">⛷️</span>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-red-500 bg-clip-text text-transparent">
+                ЛЫЖНАЯ КОМАНДА БАВЛЫ
+              </h1>
+            </div>
+            <div className="hidden md:flex space-x-6">
+              {['Главная', 'Спортсмены', 'Соревнования', 'Регистрация', 'Заявки'].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setActiveSection(item.toLowerCase())}
+                  className={`font-semibold transition-all ${
+                    activeSection === item.toLowerCase()
+                      ? 'text-blue-600 border-b-2 border-blue-600'
+                      : 'text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="container mx-auto px-4 py-12">
+        {activeSection === 'home' && (
+          <div className="space-y-16 animate-fade-in">
+            <section className="text-center space-y-6 py-20">
+              <h2 className="text-6xl font-black bg-gradient-to-r from-blue-600 via-blue-500 to-red-500 bg-clip-text text-transparent">
+                ВПЕРЕД К ПОБЕДАМ!
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Мы команда юных лыжников города Бавлы. Тренируемся, участвуем в соревнованиях и побеждаем!
+              </p>
+              <div className="flex justify-center gap-4">
+                <Button 
+                  size="lg" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                  onClick={() => setActiveSection('регистрация')}
+                >
+                  <Icon name="UserPlus" className="mr-2" />
+                  Присоединиться
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="border-red-500 text-red-500 hover:bg-red-50 font-bold"
+                  onClick={() => setActiveSection('соревнования')}
+                >
+                  <Icon name="Trophy" className="mr-2" />
+                  Соревнования
+                </Button>
+              </div>
+            </section>
+
+            <section className="grid md:grid-cols-3 gap-6">
+              <Card className="p-6 text-center hover:shadow-lg transition-all hover:scale-105 border-blue-200">
+                <div className="text-5xl mb-4">🏆</div>
+                <h3 className="text-2xl font-bold text-blue-600 mb-2">50+</h3>
+                <p className="text-gray-600">Побед в соревнованиях</p>
+              </Card>
+              <Card className="p-6 text-center hover:shadow-lg transition-all hover:scale-105 border-red-200">
+                <div className="text-5xl mb-4">👥</div>
+                <h3 className="text-2xl font-bold text-red-500 mb-2">30</h3>
+                <p className="text-gray-600">Спортсменов в команде</p>
+              </Card>
+              <Card className="p-6 text-center hover:shadow-lg transition-all hover:scale-105 border-blue-200">
+                <div className="text-5xl mb-4">⭐</div>
+                <h3 className="text-2xl font-bold text-blue-600 mb-2">10</h3>
+                <p className="text-gray-600">Лет успешной работы</p>
+              </Card>
+            </section>
+
+            <section>
+              <h3 className="text-3xl font-bold text-center mb-8">Наши звёзды</h3>
+              <div className="grid md:grid-cols-4 gap-6">
+                {athletes.slice(0, 4).map((athlete, idx) => (
+                  <Card key={idx} className="p-6 text-center hover:shadow-xl transition-all hover:scale-105 animate-scale-in">
+                    <div className="text-6xl mb-4">{athlete.image}</div>
+                    <h4 className="font-bold text-lg mb-2">{athlete.name}</h4>
+                    <p className="text-sm text-gray-500 mb-2">{athlete.age} лет</p>
+                    <Badge className="bg-blue-100 text-blue-700">{athlete.achievements}</Badge>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {activeSection === 'спортсмены' && (
+          <div className="animate-fade-in">
+            <h2 className="text-4xl font-bold text-center mb-12 text-blue-600">Наши спортсмены</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {athletes.map((athlete, idx) => (
+                <Card key={idx} className="p-6 hover:shadow-xl transition-all hover:scale-105">
+                  <div className="flex items-start space-x-4">
+                    <div className="text-5xl">{athlete.image}</div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-xl mb-1">{athlete.name}</h3>
+                      <p className="text-sm text-gray-500 mb-3">{athlete.age} лет</p>
+                      <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                        {athlete.achievements}
+                      </Badge>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'соревнования' && (
+          <div className="animate-fade-in space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-bold text-blue-600">Ближайшие соревнования</h2>
+              <p className="text-gray-600">Следите за нашими выступлениями в прямом эфире</p>
+              <Button 
+                size="lg" 
+                className="bg-red-500 hover:bg-red-600 text-white font-bold"
+                onClick={() => window.open('https://myfinish.ru', '_blank')}
+              >
+                <Icon name="Video" className="mr-2" />
+                Смотреть трансляции на MyFinish.ru
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              {competitions.map((comp, idx) => (
+                <Card key={idx} className="p-6 hover:shadow-lg transition-all border-l-4 border-blue-500">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-start space-x-4 flex-1">
+                      <Icon name="Calendar" className="text-blue-600 mt-1" size={24} />
+                      <div>
+                        <h3 className="font-bold text-xl mb-1">{comp.name}</h3>
+                        <p className="text-gray-600 mb-1">{comp.date}</p>
+                        <p className="text-sm text-gray-500 flex items-center">
+                          <Icon name="MapPin" className="mr-1" size={16} />
+                          {comp.location}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className="bg-green-100 text-green-700">Скоро</Badge>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeSection === 'регистрация' && (
+          <div className="max-w-2xl mx-auto animate-fade-in">
+            <h2 className="text-4xl font-bold text-center mb-8 text-blue-600">Регистрация</h2>
+            <Card className="p-8">
+              <Tabs defaultValue="parent" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="parent">Родитель</TabsTrigger>
+                  <TabsTrigger value="athlete">Спортсмен</TabsTrigger>
+                  <TabsTrigger value="coach">Тренер</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="parent" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>ФИО родителя</Label>
+                    <Input placeholder="Иванов Иван Иванович" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Телефон</Label>
+                    <Input placeholder="+7 900 123-45-67" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input type="email" placeholder="email@example.com" />
+                  </div>
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">Зарегистрироваться</Button>
+                </TabsContent>
+
+                <TabsContent value="athlete" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>ФИО спортсмена</Label>
+                    <Input placeholder="Петров Петр Петрович" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Возраст</Label>
+                    <Input type="number" placeholder="14" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Телефон родителя</Label>
+                    <Input placeholder="+7 900 123-45-67" />
+                  </div>
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">Зарегистрироваться</Button>
+                </TabsContent>
+
+                <TabsContent value="coach" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>ФИО тренера</Label>
+                    <Input placeholder="Сидоров Сидор Сидорович" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Квалификация</Label>
+                    <Input placeholder="Мастер спорта" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Телефон</Label>
+                    <Input placeholder="+7 900 123-45-67" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input type="email" placeholder="coach@example.com" />
+                  </div>
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">Зарегистрироваться</Button>
+                </TabsContent>
+              </Tabs>
+            </Card>
+          </div>
+        )}
+
+        {activeSection === 'заявки' && (
+          <div className="animate-fade-in space-y-8">
+            <h2 className="text-4xl font-bold text-center text-blue-600">Управление заявками</h2>
+            
+            <div className="grid lg:grid-cols-2 gap-8">
+              <Card className="p-6">
+                <h3 className="text-2xl font-bold mb-6 flex items-center">
+                  <Icon name="ClipboardList" className="mr-2 text-blue-600" />
+                  Подать заявку
+                </h3>
+                <form className="space-y-4" onSubmit={handleSubmitApplication}>
+                  <div className="space-y-2">
+                    <Label>ФИО ребенка</Label>
+                    <Input 
+                      placeholder="Иванов Петр Иванович" 
+                      value={formData.childName}
+                      onChange={(e) => setFormData({...formData, childName: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Возраст</Label>
+                    <Input 
+                      type="number" 
+                      placeholder="12"
+                      value={formData.childAge}
+                      onChange={(e) => setFormData({...formData, childAge: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>ФИО родителя</Label>
+                    <Input 
+                      placeholder="Иванова Мария Александровна"
+                      value={formData.parentName}
+                      onChange={(e) => setFormData({...formData, parentName: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Телефон</Label>
+                    <Input 
+                      placeholder="+7 900 123-45-67"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Комментарий</Label>
+                    <Textarea 
+                      placeholder="Дополнительная информация..."
+                      value={formData.comment}
+                      onChange={(e) => setFormData({...formData, comment: e.target.value})}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full bg-red-500 hover:bg-red-600 text-white font-bold">
+                    <Icon name="Send" className="mr-2" />
+                    Отправить заявку
+                  </Button>
+                </form>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-2xl font-bold mb-6 flex items-center">
+                  <Icon name="UserCheck" className="mr-2 text-blue-600" />
+                  Панель тренера
+                </h3>
+                <div className="space-y-4">
+                  {applications.map((app) => (
+                    <Card key={app.id} className="p-4 border-l-4 border-blue-500">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-bold text-lg">{app.name}</h4>
+                          <Badge className={
+                            app.status === 'approved' ? 'bg-green-100 text-green-700' :
+                            app.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }>
+                            {app.status === 'approved' ? 'Одобрена' :
+                             app.status === 'rejected' ? 'Отклонена' :
+                             'Ожидает'}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600">Возраст: {app.age} лет</p>
+                        <p className="text-sm text-gray-600">Родитель: {app.parent}</p>
+                        <p className="text-sm text-gray-600">Телефон: {app.phone}</p>
+                        
+                        {app.status === 'pending' && (
+                          <div className="flex gap-2 pt-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-green-600 hover:bg-green-700"
+                              onClick={() => handleApprove(app.id)}
+                            >
+                              <Icon name="Check" className="mr-1" size={16} />
+                              Принять
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="flex-1 border-red-500 text-red-500 hover:bg-red-50"
+                              onClick={() => handleReject(app.id)}
+                            >
+                              <Icon name="X" className="mr-1" size={16} />
+                              Отклонить
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <footer className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-12 mt-20">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-xl font-bold mb-4 flex items-center">
+                <Icon name="MapPin" className="mr-2" />
+                Контакты
+              </h3>
+              <p className="mb-2">г. Бавлы, Республика Татарстан</p>
+              <p className="mb-2">Лыжная база "Снежинка"</p>
+              <p>Телефон: +7 (85569) 5-12-34</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4 flex items-center">
+                <Icon name="Clock" className="mr-2" />
+                Режим работы
+              </h3>
+              <p className="mb-2">Понедельник - Пятница: 15:00 - 20:00</p>
+              <p className="mb-2">Суббота - Воскресенье: 10:00 - 18:00</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4 flex items-center">
+                <Icon name="Users" className="mr-2" />
+                Социальные сети
+              </h3>
+              <div className="flex space-x-4">
+                <Button variant="outline" size="icon" className="border-white text-white hover:bg-white hover:text-blue-600">
+                  <Icon name="Facebook" />
+                </Button>
+                <Button variant="outline" size="icon" className="border-white text-white hover:bg-white hover:text-blue-600">
+                  <Icon name="Instagram" />
+                </Button>
+                <Button variant="outline" size="icon" className="border-white text-white hover:bg-white hover:text-blue-600">
+                  <Icon name="Mail" />
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="text-center mt-8 pt-8 border-t border-blue-500">
+            <p>&copy; 2024 Лыжная команда Бавлы. Все права защищены.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

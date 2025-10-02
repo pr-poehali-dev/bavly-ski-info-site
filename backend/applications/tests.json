@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Get all applications",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Create application",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "childName": "Тестов Тест",
+        "childAge": 12,
+        "parentName": "Тестова Т.Т.",
+        "phone": "+7 900 000-00-00",
+        "comment": "Тестовая заявка"
+      },
+      "expectedStatus": 201
+    }
+  ]
+}

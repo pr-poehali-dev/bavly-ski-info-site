@@ -250,7 +250,7 @@ const Index = () => {
               </h1>
             </div>
             <div className="hidden md:flex items-center space-x-6">
-              {['Главная', 'Спортсмены', 'Соревнования', 'Расписание', 'Галерея', 'Регистрация', 'Заявки'].map((item) => (
+              {['Главная', 'Спортсмены', 'Соревнования', 'Расписание', 'Галерея', 'Заявки'].map((item) => (
                 <button
                   key={item}
                   onClick={() => setActiveSection(item.toLowerCase())}
@@ -493,72 +493,7 @@ const Index = () => {
           </div>
         )}
 
-        {activeSection === 'регистрация' && (
-          <div className="max-w-2xl mx-auto animate-fade-in">
-            <h2 className="text-4xl font-bold text-center mb-8 text-blue-600">Регистрация</h2>
-            <Card className="p-8">
-              <Tabs defaultValue="parent" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="parent">Родитель</TabsTrigger>
-                  <TabsTrigger value="athlete">Спортсмен</TabsTrigger>
-                  <TabsTrigger value="coach">Тренер</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="parent" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>ФИО родителя</Label>
-                    <Input placeholder="Иванов Иван Иванович" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Телефон</Label>
-                    <Input placeholder="+7 900 123-45-67" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input type="email" placeholder="email@example.com" />
-                  </div>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">Зарегистрироваться</Button>
-                </TabsContent>
 
-                <TabsContent value="athlete" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>ФИО спортсмена</Label>
-                    <Input placeholder="Петров Петр Петрович" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Возраст</Label>
-                    <Input type="number" placeholder="14" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Телефон родителя</Label>
-                    <Input placeholder="+7 900 123-45-67" />
-                  </div>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">Зарегистрироваться</Button>
-                </TabsContent>
-
-                <TabsContent value="coach" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>ФИО тренера</Label>
-                    <Input placeholder="Сидоров Сидор Сидорович" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Квалификация</Label>
-                    <Input placeholder="Мастер спорта" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Телефон</Label>
-                    <Input placeholder="+7 900 123-45-67" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input type="email" placeholder="coach@example.com" />
-                  </div>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">Зарегистрироваться</Button>
-                </TabsContent>
-              </Tabs>
-            </Card>
-          </div>
-        )}
 
         {activeSection === 'вход-тренера' && (
           <div className="max-w-md mx-auto animate-fade-in">

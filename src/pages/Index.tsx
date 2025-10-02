@@ -312,16 +312,7 @@ const Index = () => {
               <div className="flex justify-center gap-4">
                 <Button 
                   size="lg" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
-                  onClick={() => setActiveSection('регистрация')}
-                >
-                  <Icon name="UserPlus" className="mr-2" />
-                  Присоединиться
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  className="border-red-500 text-red-500 hover:bg-red-50 font-bold"
+                  className="bg-red-500 hover:bg-red-600 text-white font-bold"
                   onClick={() => setActiveSection('соревнования')}
                 >
                   <Icon name="Trophy" className="mr-2" />

@@ -30,6 +30,18 @@ const Index = () => {
   ]);
   const [newAthlete, setNewAthlete] = useState({ name: '', age: '', achievements: '', image: '🎿' });
   const [showAddAthlete, setShowAddAthlete] = useState(false);
+  const [scheduleList, setScheduleList] = useState([
+    { id: 1, day: 'Понедельник', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
+    { id: 2, day: 'Понедельник', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
+    { id: 3, day: 'Среда', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
+    { id: 4, day: 'Среда', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
+    { id: 5, day: 'Пятница', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
+    { id: 6, day: 'Пятница', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
+    { id: 7, day: 'Суббота', time: '10:00 - 13:00', group: 'Общая тренировка', coach: 'Вся команда' }
+  ]);
+  const [newSchedule, setNewSchedule] = useState({ day: 'Понедельник', time: '', group: '', coach: '' });
+  const [showAddSchedule, setShowAddSchedule] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<number | null>(null);
 
 
 
@@ -39,15 +51,7 @@ const Index = () => {
     { date: '10 февраля 2025', name: 'Зимняя Спартакиада', location: 'г. Альметьевск', status: 'upcoming' }
   ];
 
-  const schedule = [
-    { day: 'Понедельник', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
-    { day: 'Понедельник', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
-    { day: 'Среда', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
-    { day: 'Среда', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
-    { day: 'Пятница', time: '16:00 - 18:00', group: 'Младшая группа (8-11 лет)', coach: 'Иванов П.С.' },
-    { day: 'Пятница', time: '18:00 - 20:00', group: 'Старшая группа (12-16 лет)', coach: 'Петрова А.М.' },
-    { day: 'Суббота', time: '10:00 - 13:00', group: 'Общая тренировка', coach: 'Вся команда' }
-  ];
+
 
   const gallery = [
     { title: 'Кубок Татарстана 2024', image: '🏆', description: 'Победа в командном зачете' },
@@ -182,6 +186,41 @@ const Index = () => {
   const handleRemoveAthlete = (id: number) => {
     if (confirm('Вы уверены, что хотите удалить спортсмена?')) {
       setAthletesList(athletesList.filter(a => a.id !== id));
+    }
+  };
+
+  const handleAddSchedule = () => {
+    if (newSchedule.time && newSchedule.group && newSchedule.coach) {
+      const id = scheduleList.length > 0 ? Math.max(...scheduleList.map(s => s.id)) + 1 : 1;
+      setScheduleList([...scheduleList, { id, ...newSchedule }]);
+      setNewSchedule({ day: 'Понедельник', time: '', group: '', coach: '' });
+      setShowAddSchedule(false);
+    }
+  };
+
+  const handleRemoveSchedule = (id: number) => {
+    if (confirm('Вы уверены, что хотите удалить тренировку?')) {
+      setScheduleList(scheduleList.filter(s => s.id !== id));
+    }
+  };
+
+  const handleEditSchedule = (id: number) => {
+    const scheduleToEdit = scheduleList.find(s => s.id === id);
+    if (scheduleToEdit) {
+      setNewSchedule({ ...scheduleToEdit });
+      setEditingSchedule(id);
+      setShowAddSchedule(true);
+    }
+  };
+
+  const handleUpdateSchedule = () => {
+    if (editingSchedule && newSchedule.time && newSchedule.group && newSchedule.coach) {
+      setScheduleList(scheduleList.map(s => 
+        s.id === editingSchedule ? { id: editingSchedule, ...newSchedule } : s
+      ));
+      setNewSchedule({ day: 'Понедельник', time: '', group: '', coach: '' });
+      setEditingSchedule(null);
+      setShowAddSchedule(false);
     }
   };
 
@@ -375,8 +414,8 @@ const Index = () => {
           <div className="animate-fade-in">
             <h2 className="text-4xl font-bold text-center mb-12 text-blue-600">Расписание тренировок</h2>
             <div className="space-y-4 max-w-4xl mx-auto">
-              {schedule.map((item, idx) => (
-                <Card key={idx} className="p-6 hover:shadow-lg transition-all border-l-4 border-red-500">
+              {scheduleList.map((item) => (
+                <Card key={item.id} className="p-6 hover:shadow-lg transition-all border-l-4 border-red-500">
                   <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex items-center space-x-4">
                       <div className="text-center min-w-[100px]">
@@ -774,6 +813,134 @@ const Index = () => {
                       >
                         <Icon name="Trash2" size={16} />
                       </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold flex items-center">
+                  <Icon name="Calendar" className="mr-2 text-blue-600" />
+                  Управление расписанием
+                </h3>
+                <Button 
+                  onClick={() => {
+                    setShowAddSchedule(!showAddSchedule);
+                    if (editingSchedule) {
+                      setEditingSchedule(null);
+                      setNewSchedule({ day: 'Понедельник', time: '', group: '', coach: '' });
+                    }
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Icon name="Plus" className="mr-2" />
+                  Добавить тренировку
+                </Button>
+              </div>
+
+              {showAddSchedule && (
+                <Card className="p-4 mb-6 bg-green-50 border-green-200">
+                  <h4 className="font-bold mb-4">
+                    {editingSchedule ? 'Редактировать тренировку' : 'Новая тренировка'}
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>День недели</Label>
+                      <select
+                        className="w-full border rounded-md px-3 py-2"
+                        value={newSchedule.day}
+                        onChange={(e) => setNewSchedule({...newSchedule, day: e.target.value})}
+                      >
+                        <option>Понедельник</option>
+                        <option>Вторник</option>
+                        <option>Среда</option>
+                        <option>Четверг</option>
+                        <option>Пятница</option>
+                        <option>Суббота</option>
+                        <option>Воскресенье</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Время</Label>
+                      <Input
+                        placeholder="16:00 - 18:00"
+                        value={newSchedule.time}
+                        onChange={(e) => setNewSchedule({...newSchedule, time: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Группа</Label>
+                      <Input
+                        placeholder="Младшая группа (8-11 лет)"
+                        value={newSchedule.group}
+                        onChange={(e) => setNewSchedule({...newSchedule, group: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Тренер</Label>
+                      <Input
+                        placeholder="Иванов П.С."
+                        value={newSchedule.coach}
+                        onChange={(e) => setNewSchedule({...newSchedule, coach: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      onClick={editingSchedule ? handleUpdateSchedule : handleAddSchedule}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Icon name="Check" className="mr-2" />
+                      {editingSchedule ? 'Сохранить' : 'Добавить'}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setShowAddSchedule(false);
+                        setEditingSchedule(null);
+                        setNewSchedule({ day: 'Понедельник', time: '', group: '', coach: '' });
+                      }}
+                    >
+                      Отмена
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              <div className="space-y-3">
+                {scheduleList.map((item) => (
+                  <Card key={item.id} className="p-4 hover:shadow-lg transition-all border-l-4 border-blue-500">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div className="flex items-center space-x-4 flex-1">
+                        <div className="text-center min-w-[100px]">
+                          <Badge className="bg-blue-600 text-white text-sm">{item.day}</Badge>
+                          <p className="text-sm font-bold text-blue-600 mt-1">{item.time}</p>
+                        </div>
+                        <div className="border-l-2 border-gray-200 pl-4 flex-1">
+                          <h4 className="font-bold mb-1">{item.group}</h4>
+                          <p className="text-sm text-gray-600">Тренер: {item.coach}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-500 text-blue-500 hover:bg-blue-50"
+                          onClick={() => handleEditSchedule(item.id)}
+                        >
+                          <Icon name="Edit" size={16} />
+                        </Button>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          className="border-red-500 text-red-500 hover:bg-red-50"
+                          onClick={() => handleRemoveSchedule(item.id)}
+                        >
+                          <Icon name="Trash2" size={16} />
+                        </Button>
+                      </div>
                     </div>
                   </Card>
                 ))}

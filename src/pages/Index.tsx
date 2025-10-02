@@ -12,7 +12,7 @@ const API_URL = 'https://functions.poehali.dev/c8ed8102-c061-4f5b-ac2c-ac7d0710f
 const AUTH_URL = 'https://functions.poehali.dev/59f82144-8fc0-41bb-b8d5-ad0b3d77295b';
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState('главная');
   const [applications, setApplications] = useState([]);
   const [formData, setFormData] = useState({ childName: '', childAge: '', parentName: '', phone: '', comment: '' });
   const [isCoachLoggedIn, setIsCoachLoggedIn] = useState(false);
@@ -147,7 +147,7 @@ const Index = () => {
   const handleCoachLogout = () => {
     setIsCoachLoggedIn(false);
     setCoachData(null);
-    setActiveSection('home');
+    setActiveSection('главная');
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -286,7 +286,7 @@ const Index = () => {
       </nav>
 
       <main className="container mx-auto px-4 py-12">
-        {activeSection === 'home' && (
+        {activeSection === 'главная' && (
           <div className="space-y-16 animate-fade-in">
             <section className="text-center space-y-6 py-20">
               <h2 className="text-6xl font-black bg-gradient-to-r from-blue-600 via-blue-500 to-red-500 bg-clip-text text-transparent">
@@ -1023,8 +1023,8 @@ const Index = () => {
                 Контакты
               </h3>
               <p className="mb-2">г. Бавлы, Республика Татарстан</p>
-              <p className="mb-2">Лыжная база "Снежинка"</p>
-              <p>Телефон: +7 (85569) 5-12-34</p>
+              <p className="mb-2">Лыжная база "Трехгорка"</p>
+              <p>Телефон: +7 904 678 52 08</p>
             </div>
             <div>
               <h3 className="text-xl font-bold mb-4 flex items-center">

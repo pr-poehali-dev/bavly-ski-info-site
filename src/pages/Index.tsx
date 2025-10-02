@@ -645,7 +645,6 @@ const Index = () => {
                   </Button>
                 </form>
               </Card>
-            </div>
           </div>
         )}
       </main>

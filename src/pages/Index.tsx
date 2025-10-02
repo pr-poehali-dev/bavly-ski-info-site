@@ -19,9 +19,6 @@ const Index = () => {
   const [coachData, setCoachData] = useState(null);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
-  const [showRegister, setShowRegister] = useState(false);
-  const [registerForm, setRegisterForm] = useState({ username: '', password: '', fullName: '' });
-  const [registerError, setRegisterError] = useState('');
   const [athletesList, setAthletesList] = useState([
     { id: 1, name: 'Александров Иван', age: 15, achievements: '1 место - Кубок Татарстана 2024', image: '🎿' },
     { id: 2, name: 'Петрова Мария', age: 14, achievements: '2 место - Первенство РТ 2024', image: '⛷️' },
@@ -154,29 +151,7 @@ const Index = () => {
     setActiveSection('главная');
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegisterError('');
-    try {
-      const response = await fetch(AUTH_URL + '/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registerForm)
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        alert('Регистрация успешна! Войдите в систему.');
-        setShowRegister(false);
-        setRegisterForm({ username: '', password: '', fullName: '' });
-      } else {
-        setRegisterError(data.message || 'Ошибка регистрации');
-      }
-    } catch (error) {
-      console.error('Register error:', error);
-      setRegisterError('Ошибка подключения к серверу');
-    }
-  };
+
 
   const handleAddAthlete = () => {
     if (newAthlete.name && newAthlete.age) {

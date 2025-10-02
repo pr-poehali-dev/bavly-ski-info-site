@@ -42,14 +42,18 @@ const Index = () => {
   const [newSchedule, setNewSchedule] = useState({ day: 'Понедельник', time: '', group: '', coach: '' });
   const [showAddSchedule, setShowAddSchedule] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<number | null>(null);
+  const [competitionsList, setCompetitionsList] = useState([
+    { id: 1, date: '15 декабря 2024', name: 'Кубок Бавлы', location: 'г. Бавлы, лыжная база', status: 'upcoming' },
+    { id: 2, date: '20 января 2025', name: 'Первенство Татарстана', location: 'г. Казань', status: 'upcoming' },
+    { id: 3, date: '10 февраля 2025', name: 'Зимняя Спартакиада', location: 'г. Альметьевск', status: 'upcoming' }
+  ]);
+  const [newCompetition, setNewCompetition] = useState({ date: '', name: '', location: '', status: 'upcoming' });
+  const [showAddCompetition, setShowAddCompetition] = useState(false);
+  const [editingCompetition, setEditingCompetition] = useState<number | null>(null);
 
 
 
-  const competitions = [
-    { date: '15 декабря 2024', name: 'Кубок Бавлы', location: 'г. Бавлы, лыжная база', status: 'upcoming' },
-    { date: '20 января 2025', name: 'Первенство Татарстана', location: 'г. Казань', status: 'upcoming' },
-    { date: '10 февраля 2025', name: 'Зимняя Спартакиада', location: 'г. Альметьевск', status: 'upcoming' }
-  ];
+
 
 
 
@@ -224,6 +228,41 @@ const Index = () => {
     }
   };
 
+  const handleAddCompetition = () => {
+    if (newCompetition.date && newCompetition.name && newCompetition.location) {
+      const id = competitionsList.length > 0 ? Math.max(...competitionsList.map(c => c.id)) + 1 : 1;
+      setCompetitionsList([...competitionsList, { id, ...newCompetition }]);
+      setNewCompetition({ date: '', name: '', location: '', status: 'upcoming' });
+      setShowAddCompetition(false);
+    }
+  };
+
+  const handleRemoveCompetition = (id: number) => {
+    if (confirm('Вы уверены, что хотите удалить соревнование?')) {
+      setCompetitionsList(competitionsList.filter(c => c.id !== id));
+    }
+  };
+
+  const handleEditCompetition = (id: number) => {
+    const competitionToEdit = competitionsList.find(c => c.id === id);
+    if (competitionToEdit) {
+      setNewCompetition({ ...competitionToEdit });
+      setEditingCompetition(id);
+      setShowAddCompetition(true);
+    }
+  };
+
+  const handleUpdateCompetition = () => {
+    if (editingCompetition && newCompetition.date && newCompetition.name && newCompetition.location) {
+      setCompetitionsList(competitionsList.map(c => 
+        c.id === editingCompetition ? { id: editingCompetition, ...newCompetition } : c
+      ));
+      setNewCompetition({ date: '', name: '', location: '', status: 'upcoming' });
+      setEditingCompetition(null);
+      setShowAddCompetition(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-blue-100">
@@ -388,8 +427,8 @@ const Index = () => {
             </div>
             
             <div className="space-y-4">
-              {competitions.map((comp, idx) => (
-                <Card key={idx} className="p-6 hover:shadow-lg transition-all border-l-4 border-blue-500">
+              {competitionsList.map((comp) => (
+                <Card key={comp.id} className="p-6 hover:shadow-lg transition-all border-l-4 border-blue-500">
                   <div className="flex items-center justify-between">
                     <div className="flex items-start space-x-4 flex-1">
                       <Icon name="Calendar" className="text-blue-600 mt-1" size={24} />
@@ -937,6 +976,119 @@ const Index = () => {
                           variant="outline"
                           className="border-red-500 text-red-500 hover:bg-red-50"
                           onClick={() => handleRemoveSchedule(item.id)}
+                        >
+                          <Icon name="Trash2" size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold flex items-center">
+                  <Icon name="Trophy" className="mr-2 text-blue-600" />
+                  Управление соревнованиями
+                </h3>
+                <Button 
+                  onClick={() => {
+                    setShowAddCompetition(!showAddCompetition);
+                    if (editingCompetition) {
+                      setEditingCompetition(null);
+                      setNewCompetition({ date: '', name: '', location: '', status: 'upcoming' });
+                    }
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Icon name="Plus" className="mr-2" />
+                  Добавить соревнование
+                </Button>
+              </div>
+
+              {showAddCompetition && (
+                <Card className="p-4 mb-6 bg-green-50 border-green-200">
+                  <h4 className="font-bold mb-4">
+                    {editingCompetition ? 'Редактировать соревнование' : 'Новое соревнование'}
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Название</Label>
+                      <Input
+                        placeholder="Кубок Бавлы"
+                        value={newCompetition.name}
+                        onChange={(e) => setNewCompetition({...newCompetition, name: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Дата</Label>
+                      <Input
+                        placeholder="15 декабря 2024"
+                        value={newCompetition.date}
+                        onChange={(e) => setNewCompetition({...newCompetition, date: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label>Место проведения</Label>
+                      <Input
+                        placeholder="г. Бавлы, лыжная база"
+                        value={newCompetition.location}
+                        onChange={(e) => setNewCompetition({...newCompetition, location: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      onClick={editingCompetition ? handleUpdateCompetition : handleAddCompetition}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Icon name="Check" className="mr-2" />
+                      {editingCompetition ? 'Сохранить' : 'Добавить'}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setShowAddCompetition(false);
+                        setEditingCompetition(null);
+                        setNewCompetition({ date: '', name: '', location: '', status: 'upcoming' });
+                      }}
+                    >
+                      Отмена
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              <div className="space-y-3">
+                {competitionsList.map((comp) => (
+                  <Card key={comp.id} className="p-4 hover:shadow-lg transition-all border-l-4 border-blue-500">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div className="flex items-center space-x-4 flex-1">
+                        <Icon name="Calendar" className="text-blue-600" size={24} />
+                        <div className="flex-1">
+                          <h4 className="font-bold text-lg mb-1">{comp.name}</h4>
+                          <p className="text-sm text-gray-600 mb-1">{comp.date}</p>
+                          <p className="text-sm text-gray-500 flex items-center">
+                            <Icon name="MapPin" className="mr-1" size={14} />
+                            {comp.location}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-500 text-blue-500 hover:bg-blue-50"
+                          onClick={() => handleEditCompetition(comp.id)}
+                        >
+                          <Icon name="Edit" size={16} />
+                        </Button>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          className="border-red-500 text-red-500 hover:bg-red-50"
+                          onClick={() => handleRemoveCompetition(comp.id)}
                         >
                           <Icon name="Trash2" size={16} />
                         </Button>

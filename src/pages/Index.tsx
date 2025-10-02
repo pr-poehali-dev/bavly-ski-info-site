@@ -19,13 +19,19 @@ const Index = () => {
   const [coachData, setCoachData] = useState(null);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
+  const [showRegister, setShowRegister] = useState(false);
+  const [registerForm, setRegisterForm] = useState({ username: '', password: '', fullName: '' });
+  const [registerError, setRegisterError] = useState('');
+  const [athletesList, setAthletesList] = useState([
+    { id: 1, name: 'Александров Иван', age: 15, achievements: '1 место - Кубок Татарстана 2024', image: '🎿' },
+    { id: 2, name: 'Петрова Мария', age: 14, achievements: '2 место - Первенство РТ 2024', image: '⛷️' },
+    { id: 3, name: 'Сидоров Дмитрий', age: 16, achievements: '3 место - Зимняя Спартакиада', image: '🎿' },
+    { id: 4, name: 'Козлова Елена', age: 13, achievements: '1 место - Юниорский кубок', image: '⛷️' }
+  ]);
+  const [newAthlete, setNewAthlete] = useState({ name: '', age: '', achievements: '', image: '🎿' });
+  const [showAddAthlete, setShowAddAthlete] = useState(false);
 
-  const athletes = [
-    { name: 'Александров Иван', age: 15, achievements: '1 место - Кубок Татарстана 2024', image: '🎿' },
-    { name: 'Петрова Мария', age: 14, achievements: '2 место - Первенство РТ 2024', image: '⛷️' },
-    { name: 'Сидоров Дмитрий', age: 16, achievements: '3 место - Зимняя Спартакиада', image: '🎿' },
-    { name: 'Козлова Елена', age: 13, achievements: '1 место - Юниорский кубок', image: '⛷️' }
-  ];
+
 
   const competitions = [
     { date: '15 декабря 2024', name: 'Кубок Бавлы', location: 'г. Бавлы, лыжная база', status: 'upcoming' },
@@ -138,6 +144,45 @@ const Index = () => {
     setIsCoachLoggedIn(false);
     setCoachData(null);
     setActiveSection('home');
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegisterError('');
+    try {
+      const response = await fetch(AUTH_URL + '/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerForm)
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('Регистрация успешна! Войдите в систему.');
+        setShowRegister(false);
+        setRegisterForm({ username: '', password: '', fullName: '' });
+      } else {
+        setRegisterError(data.message || 'Ошибка регистрации');
+      }
+    } catch (error) {
+      console.error('Register error:', error);
+      setRegisterError('Ошибка подключения к серверу');
+    }
+  };
+
+  const handleAddAthlete = () => {
+    if (newAthlete.name && newAthlete.age) {
+      const id = athletesList.length > 0 ? Math.max(...athletesList.map(a => a.id)) + 1 : 1;
+      setAthletesList([...athletesList, { id, ...newAthlete, age: parseInt(newAthlete.age) }]);
+      setNewAthlete({ name: '', age: '', achievements: '', image: '🎿' });
+      setShowAddAthlete(false);
+    }
+  };
+
+  const handleRemoveAthlete = (id: number) => {
+    if (confirm('Вы уверены, что хотите удалить спортсмена?')) {
+      setAthletesList(athletesList.filter(a => a.id !== id));
+    }
   };
 
   return (
@@ -253,8 +298,8 @@ const Index = () => {
             <section>
               <h3 className="text-3xl font-bold text-center mb-8">Наши звёзды</h3>
               <div className="grid md:grid-cols-4 gap-6">
-                {athletes.slice(0, 4).map((athlete, idx) => (
-                  <Card key={idx} className="p-6 text-center hover:shadow-xl transition-all hover:scale-105 animate-scale-in">
+                {athletesList.slice(0, 4).map((athlete) => (
+                  <Card key={athlete.id} className="p-6 text-center hover:shadow-xl transition-all hover:scale-105 animate-scale-in">
                     <div className="text-6xl mb-4">{athlete.image}</div>
                     <h4 className="font-bold text-lg mb-2">{athlete.name}</h4>
                     <p className="text-sm text-gray-500 mb-2">{athlete.age} лет</p>
@@ -270,8 +315,8 @@ const Index = () => {
           <div className="animate-fade-in">
             <h2 className="text-4xl font-bold text-center mb-12 text-blue-600">Наши спортсмены</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {athletes.map((athlete, idx) => (
-                <Card key={idx} className="p-6 hover:shadow-xl transition-all hover:scale-105">
+              {athletesList.map((athlete) => (
+                <Card key={athlete.id} className="p-6 hover:shadow-xl transition-all hover:scale-105">
                   <div className="flex items-start space-x-4">
                     <div className="text-5xl">{athlete.image}</div>
                     <div className="flex-1">
@@ -499,15 +544,66 @@ const Index = () => {
                   <Icon name="LogIn" className="mr-2" />
                   Войти
                 </Button>
-                <div className="text-center text-sm text-gray-500 mt-4">
-                  <p>Тестовый доступ:</p>
-                  <p className="font-mono bg-gray-100 p-2 rounded mt-2">
-                    Логин: <strong>trainer</strong><br />
-                    Пароль: <strong>trainer123</strong>
-                  </p>
+                <div className="text-center mt-4">
+                  <button 
+                    type="button"
+                    onClick={() => setShowRegister(!showRegister)}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    {showRegister ? 'Уже есть аккаунт? Войти' : 'Нет аккаунта? Зарегистрироваться'}
+                  </button>
                 </div>
               </form>
             </Card>
+
+            {showRegister && (
+              <Card className="p-8 mt-6">
+                <div className="text-center mb-6">
+                  <Icon name="UserPlus" className="mx-auto mb-4 text-blue-600" size={48} />
+                  <h2 className="text-3xl font-bold text-blue-600 mb-2">Регистрация тренера</h2>
+                  <p className="text-gray-600">Создайте новый аккаунт</p>
+                </div>
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>ФИО</Label>
+                    <Input
+                      placeholder="Иванов Иван Иванович"
+                      value={registerForm.fullName}
+                      onChange={(e) => setRegisterForm({...registerForm, fullName: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Логин</Label>
+                    <Input
+                      placeholder="ivan_ivanov"
+                      value={registerForm.username}
+                      onChange={(e) => setRegisterForm({...registerForm, username: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Пароль</Label>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      value={registerForm.password}
+                      onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+                      required
+                    />
+                  </div>
+                  {registerError && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                      {registerError}
+                    </div>
+                  )}
+                  <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
+                    <Icon name="UserPlus" className="mr-2" />
+                    Зарегистрироваться
+                  </Button>
+                </form>
+              </Card>
+            )}
           </div>
         )}
 
@@ -579,6 +675,108 @@ const Index = () => {
                     </Card>
                   ))
                 )}
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold flex items-center">
+                  <Icon name="Users" className="mr-2 text-blue-600" />
+                  Управление спортсменами
+                </h3>
+                <Button 
+                  onClick={() => setShowAddAthlete(!showAddAthlete)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Icon name="Plus" className="mr-2" />
+                  Добавить спортсмена
+                </Button>
+              </div>
+
+              {showAddAthlete && (
+                <Card className="p-4 mb-6 bg-green-50 border-green-200">
+                  <h4 className="font-bold mb-4">Новый спортсмен</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>ФИО</Label>
+                      <Input
+                        placeholder="Иванов Иван Иванович"
+                        value={newAthlete.name}
+                        onChange={(e) => setNewAthlete({...newAthlete, name: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Возраст</Label>
+                      <Input
+                        type="number"
+                        placeholder="14"
+                        value={newAthlete.age}
+                        onChange={(e) => setNewAthlete({...newAthlete, age: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label>Достижения</Label>
+                      <Input
+                        placeholder="1 место - Кубок города"
+                        value={newAthlete.achievements}
+                        onChange={(e) => setNewAthlete({...newAthlete, achievements: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Эмодзи</Label>
+                      <Input
+                        placeholder="🎿"
+                        value={newAthlete.image}
+                        onChange={(e) => setNewAthlete({...newAthlete, image: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      onClick={handleAddAthlete}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Icon name="Check" className="mr-2" />
+                      Добавить
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setShowAddAthlete(false);
+                        setNewAthlete({ name: '', age: '', achievements: '', image: '🎿' });
+                      }}
+                    >
+                      Отмена
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {athletesList.map((athlete) => (
+                  <Card key={athlete.id} className="p-4 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-4 flex-1">
+                        <div className="text-4xl">{athlete.image}</div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-lg mb-1">{athlete.name}</h4>
+                          <p className="text-sm text-gray-500 mb-2">{athlete.age} лет</p>
+                          <Badge className="bg-blue-100 text-blue-700 text-xs">
+                            {athlete.achievements}
+                          </Badge>
+                        </div>
+                      </div>
+                      <Button 
+                        size="sm"
+                        variant="outline"
+                        className="border-red-500 text-red-500 hover:bg-red-50"
+                        onClick={() => handleRemoveAthlete(athlete.id)}
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
               </div>
             </Card>
           </div>
